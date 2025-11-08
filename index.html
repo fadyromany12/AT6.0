@@ -17,6 +17,33 @@
     <style>
       /* --- Color Palette & Variables --- */
       :root {
+        /* --- NEW: App Loader --- */
+      #app-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--page-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease;
+      }
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid var(--border-color);
+        border-top-color: var(--konecta-blue);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      /* This keyframes rule is likely already in your CSS, but ensure it exists */
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
         /* Konecta Branding */
         --konecta-blue: #00a9e0;
         --konecta-dark: #2101cd; 
@@ -207,13 +234,20 @@
         margin-left: 5px;
       }
       
-      /* --- Refresh Button (Kept) --- */
+      /* --- Refresh Button (MODIFIED) --- */
       #header-refresh-button {
         background: var(--input-bg);
         border: 1px solid var(--border-color);
         cursor: pointer;
-        padding: 8px;
-        border-radius: 50%;
+        
+        /* Set height to match toggle and width to be a square */
+        height: 34px;
+        width: 34px;
+        padding: 0; /* Remove padding for exact size */
+        
+        /* Use the app's standard radius for a modern "squarish" look */
+        border-radius: var(--radius); 
+
         display: flex;
         align-items: center;
         justify-content: center;
@@ -226,13 +260,14 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       }
       #header-refresh-button img {
-        width: 18px;
-        height: 18px;
-        /* The filter is handled by JS on theme change */
+        /* Resize the new icon to fit inside the button */
+        width: 20px; 
+        height: 20px;
       }
       #header-refresh-button.loading img {
         animation: spin 1s linear infinite;
       }
+      
       @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
@@ -1371,6 +1406,9 @@
     </style>
   </head>
   <body>
+    <div id="app-loader">
+      <div class="spinner"></div>
+    </div>
     <header>
       <img src="https://th.bing.com/th/id/OIP.gafgWpiLoUVHSxGah643xQHaCa?w=338&h=114&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3" alt="Konecta Logo">
       <div class="header-controls">
@@ -1382,14 +1420,14 @@
         <div class="dark-mode-toggle-wrapper" title="Toggle Dark Mode">
             <input type="checkbox" id="dark-mode-toggle">
             <label for="dark-mode-toggle" class="switch-label">
-                <span class="sun-icon">☀️</span>
-                <span class="moon-icon">🌙</span>
+                <span class="sun-icon">⚫</span>
+                <span class="moon-icon">⚪</span>
             </label>
         </div>
         
         <!-- Header Refresh Button -->
         <button id="header-refresh-button" title="Refresh Data" onclick="refreshCurrentData()">
-          <img id="refresh-icon" src="https://icons.veryicon.com/png/o/miscellaneous/two-color-webpage-small-icon/refresh-174.png" alt="Refresh Icon">
+          <img id="refresh-icon" src="https://cdn-icons-png.flaticon.com/512/2725/2725164.png" alt="Refresh Icon">
         </button>
       </div>
     </header>
@@ -2099,10 +2137,12 @@
         
         // 2. Set timeout for failure
         const loadTimeout = setTimeout(() => {
+          
           const infoDiv = document.getElementById('agent-info');
           infoDiv.innerHTML = "The request timed out. Please refresh and re-authorize the script if asked.";
           infoDiv.classList.add('error', 'visible');
           infoDiv.style.textAlign = 'center';
+          document.getElementById('app-loader').style.display = 'none';
         }, 15000);
 
         // 3. Run script
@@ -2110,6 +2150,7 @@
           .withSuccessHandler(user => { 
             clearTimeout(loadTimeout); 
             populateUserInfo(user);
+            document.getElementById('app-loader').style.display = 'none';
           })
           .withFailureHandler(err => {
             clearTimeout(loadTimeout); 
@@ -2117,6 +2158,7 @@
             let errorMsg = err.message || JSON.stringify(err);
             infoDiv.innerHTML = "Could not load user info. Error: " + errorMsg; 
             infoDiv.classList.add('error', 'visible');
+            document.getElementById('app-loader').style.display = 'none';
         }).getUserInfo(); 
       }
       
