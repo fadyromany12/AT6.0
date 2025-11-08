@@ -944,7 +944,7 @@ function punch(action, targetUserName, puncherEmail, adminTimestamp) { 
         shiftEndStr = Utilities.formatDate(schEnd, timeZone, "HH:mm:ss");
       } else {
         shiftEndStr = (schEnd || "").toString(); 
-  S     }
+       }
           
       leaveType = (schLeave || "").toString().trim();
       break;
@@ -1571,7 +1571,7 @@ function getMyRequests(userEmail) {
           continue; 
         }
 
-        const supervisorEmail = row[11];s 
+        const supervisorEmail = row[11];
         myRequests.push({
           requestID: row[0],
           status: row[1],
