@@ -2475,8 +2475,8 @@
       }
 
       function onPendingRequestsFailure(error) {
-        const listDiv = document.getElementById('pending-requests-list');
-        listDiv.innerHTML = `<p class="status-message error visible">Error loading requests: ${error.message || JSON.stringify(error)}</p>`;
+        // Set the status in the main 'approval-status' div, not in the list
+        setStatus('approval-status', 'error', 'Error loading requests: ' + (error.message || JSON.stringify(error)));
       }
 
       // --- === `loadMyRequests` ---
@@ -2610,11 +2610,15 @@
           const listDiv = document.getElementById('pending-requests-list');
           
           if (requests.error) {
-             listDiv.innerHTML = `<p class="status-message error visible">${requests.error}</p>`;
+             // Use the main status div
+             setStatus('approval-status', 'error', requests.error);
+             listDiv.innerHTML = ''; // Clear the list
              return;
           }
           if (!Array.isArray(requests) || requests.length === 0) {
-            listDiv.innerHTML = '<p class="text-color-secondary">No leave requests found for this filter.</p>';
+            // Use the main status div and clear the list
+            setStatus('approval-status', 'success', 'No leave requests found for this filter.');
+            listDiv.innerHTML = '';
             return;
           }
           
@@ -2666,6 +2670,10 @@
             `;
           });
           listDiv.innerHTML = html;
+
+          // *** THIS IS THE FIX ***
+          // Set a success message in the correct div after loading
+          setStatus('approval-status', 'success', `Successfully loaded ${requests.length} request(s).`);
         }
       
       // --- Admin Approve/Deny Function ---
